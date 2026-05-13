@@ -1,0 +1,15 @@
+Assets/
+ ├── Scripts/
+ │    ├── Player/
+ │    ├── Ball/
+ │    ├── Camera/
+ │    ├── AI/
+ │    ├── UI/
+ │    └── Managers/
+ │
+ ├── Materials/
+ ├── Models/
+ ├── Prefabs/
+ ├── Scenes/
+ ├── Animations/
+ └── Audio/
