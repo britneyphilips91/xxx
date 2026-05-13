@@ -1,0 +1,438 @@
+# Neon League FC — Starter Coding Setup
+
+## Goal
+
+Build the first playable prototype of your futuristic football game.
+
+This starter setup includes:
+
+* Player movement
+* Ball movement
+* Passing
+* Shooting
+* Camera follow
+* Basic AI structure
+* Neon stadium foundation
+
+Engine: Unity
+Language: C#
+
+---
+
+# Project Structure
+
+Create these folders inside Unity:
+
+```text
+Assets/
+ ├── Scripts/
+ │    ├── Player/
+ │    ├── Ball/
+ │    ├── Camera/
+ │    ├── AI/
+ │    ├── UI/
+ │    └── Managers/
+ │
+ ├── Materials/
+ ├── Models/
+ ├── Prefabs/
+ ├── Scenes/
+ ├── Animations/
+ └── Audio/
+```
+
+---
+
+# Step 1 — Player Movement Script
+
+Create:
+
+```text
+Scripts/Player/PlayerController.cs
+```
+
+```csharp
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    public float moveSpeed = 6f;
+    public float sprintSpeed = 10f;
+    public float rotationSpeed = 10f;
+
+    private CharacterController controller;
+    private Vector3 moveDirection;
+
+    void Start()
+    {
+        controller = GetComponent<CharacterController>();
+    }
+
+    void Update()
+    {
+        MovePlayer();
+    }
+
+    void MovePlayer()
+    {
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        Vector3 inputDirection = new Vector3(horizontal, 0f, vertical);
+
+        float currentSpeed = Input.GetKey(KeyCode.LeftShift)
+            ? sprintSpeed
+            : moveSpeed;
+
+        moveDirection = inputDirection.normalized * currentSpeed;
+
+        controller.Move(moveDirection * Time.deltaTime);
+
+        if (inputDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(inputDirection);
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.deltaTime
+            );
+        }
+    }
+}
+```
+
+---
+
+# Step 2 — Ball Controller
+
+Create:
+
+```text
+Scripts/Ball/BallController.cs
+```
+
+```csharp
+using UnityEngine;
+
+public class BallController : MonoBehaviour
+{
+    public Rigidbody rb;
+
+    public void KickBall(Vector3 direction, float power)
+    {
+        rb.AddForce(direction * power, ForceMode.Impulse);
+    }
+}
+```
+
+---
+
+# Step 3 — Shooting System
+
+Create:
+
+```text
+Scripts/Player/PlayerShoot.cs
+```
+
+```csharp
+using UnityEngine;
+
+public class PlayerShoot : MonoBehaviour
+{
+    public BallController ball;
+
+    public float shootPower = 20f;
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Shoot();
+        }
+    }
+
+    void Shoot()
+    {
+        Vector3 shootDirection = transform.forward + Vector3.up * 0.2f;
+
+        ball.KickBall(shootDirection.normalized, shootPower);
+    }
+}
+```
+
+---
+
+# Step 4 — Passing System
+
+Create:
+
+```text
+Scripts/Player/PlayerPass.cs
+```
+
+```csharp
+using UnityEngine;
+
+public class PlayerPass : MonoBehaviour
+{
+    public BallController ball;
+
+    public float passPower = 10f;
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            PassBall();
+        }
+    }
+
+    void PassBall()
+    {
+        Vector3 passDirection = transform.forward;
+
+        ball.KickBall(passDirection.normalized, passPower);
+    }
+}
+```
+
+---
+
+# Step 5 — Camera Follow
+
+Create:
+
+```text
+Scripts/Camera/CameraFollow.cs
+```
+
+```csharp
+using UnityEngine;
+
+public class CameraFollow : MonoBehaviour
+{
+    public Transform target;
+
+    public Vector3 offset = new Vector3(0f, 10f, -8f);
+
+    public float smoothSpeed = 5f;
+
+    void LateUpdate()
+    {
+        Vector3 desiredPosition = target.position + offset;
+
+        transform.position = Vector3.Lerp(
+            transform.position,
+            desiredPosition,
+            smoothSpeed * Time.deltaTime
+        );
+
+        transform.LookAt(target);
+    }
+}
+```
+
+---
+
+# Step 6 — Basic AI Player
+
+Create:
+
+```text
+Scripts/AI/AIPlayer.cs
+```
+
+```csharp
+using UnityEngine;
+
+public class AIPlayer : MonoBehaviour
+{
+    public Transform targetBall;
+
+    public float moveSpeed = 5f;
+
+    void Update()
+    {
+        MoveTowardBall();
+    }
+
+    void MoveTowardBall()
+    {
+        Vector3 direction = (targetBall.position - transform.position).normalized;
+
+        transform.position += direction * moveSpeed * Time.deltaTime;
+    }
+}
+```
+
+---
+
+# Step 7 — Neon Stadium Lighting
+
+## Unity URP Setup
+
+Install:
+
+* Universal Render Pipeline (URP)
+
+Then:
+
+* Enable Bloom
+* Enable HDR
+* Add emissive neon materials
+
+---
+
+# Neon Material Setup
+
+## Create Emissive Material
+
+In Unity:
+
+```text
+Material → Emission Enabled
+```
+
+Use colors like:
+
+* Cyan
+* Purple
+* Electric Blue
+* Neon Pink
+
+Increase bloom intensity for glow.
+
+---
+
+# Step 8 — Futuristic Stadium Ideas
+
+## Add Objects
+
+* Hologram billboards
+* Flying drones
+* Animated LED walls
+* Neon goal posts
+* Digital crowd screens
+* Futuristic skybox
+
+---
+
+# Step 9 — Match UI
+
+Create UI:
+
+```text
+Canvas
+ ├── ScoreText
+ ├── MatchTimer
+ ├── SprintBar
+ ├── RadarMap
+ └── SkillButtons
+```
+
+Recommended UI Style:
+
+* Transparent glass panels
+* Neon borders
+* Animated gradients
+* Futuristic fonts
+
+---
+
+# Step 10 — Better Football Physics
+
+## Important Settings
+
+Ball Rigidbody:
+
+```text
+Mass: 0.45
+Drag: 0.2
+Angular Drag: 0.05
+Interpolation: Interpolate
+Collision Detection: Continuous
+```
+
+---
+
+# Recommended Assets
+
+## Unity Asset Store
+
+Search for:
+
+* Football animations
+* Stadium props
+* Sci-fi environment packs
+* Neon shaders
+* Crowd systems
+* URP effects
+
+---
+
+# Next Features To Build
+
+After this prototype:
+
+1. Goal detection
+2. Match timer
+3. Team switching
+4. Goalkeeper AI
+5. Tackling system
+6. Online multiplayer
+7. Career mode
+8. Stadium customization
+9. Player stats
+10. Neon effects polish
+
+---
+
+# Recommended Learning Resources
+
+## Unity
+
+* urlUnity Learn[https://learn.unity.com/](https://learn.unity.com/)
+* urlUnity Official Website[https://unity.com/](https://unity.com/)
+
+## 3D Models
+
+* urlMixamo[https://www.mixamo.com/](https://www.mixamo.com/)
+* urlBlender[https://www.blender.org/](https://www.blender.org/)
+
+---
+
+# Best Development Strategy
+
+DO NOT try to make the full game immediately.
+
+Build in this order:
+
+1. Football gameplay
+2. Camera
+3. AI
+4. UI
+5. Neon visuals
+6. Multiplayer
+7. Career mode
+8. Advanced features
+
+Gameplay quality matters more than graphics at first.
+
+---
+
+# First Milestone
+
+Your first target should be:
+
+✔ One playable football match
+✔ One neon stadium
+✔ Two teams
+✔ Passing
+✔ Shooting
+✔ AI opponents
+✔ Score system
+✔ Camera movement
+
+Once that works, you can expand into a full futuristic football universe.
